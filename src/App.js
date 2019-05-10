@@ -9,6 +9,7 @@ import im from './audio/im.mp3';
 import gotpics from './audio/Got-Pics.mp3';
 import welcome from './audio/Welcome.mp3';
 import gotmail from './audio/You-Got-Mail.mp3';
+import aolpic from './aolpic.svg';
 
   const sounds =
   [{trigger: 'Q', id: 'welcome', file: welcome},
@@ -21,7 +22,6 @@ import gotmail from './audio/You-Got-Mail.mp3';
   {trigger: 'X', id: 'gotpics', file: gotpics},
   {trigger: 'C', id: 'goodbye', file: goodbye}]
 
-
   class Audio extends Component {
     render(){
       return(
@@ -32,7 +32,6 @@ import gotmail from './audio/You-Got-Mail.mp3';
       </audio>)
     }
   }
-
 
   class SoundButtons extends Component {
 
@@ -56,9 +55,15 @@ import gotmail from './audio/You-Got-Mail.mp3';
   
       return(
         <div id="display">
-          {padKeys}
+          <div id="button-cont">
+            {padKeys}
+          </div>
+
+          <div id="text-board">
+            {this.props.soundText}
+          </div>
         </div>
-      )
+      );
     }
   }
   
@@ -68,76 +73,57 @@ class App extends Component {
     super(props);
 
     this.state = {
-      sound_requested: null
+      sound_requested: null,
+      sound_text: "SOUND BOARD"
     }
 
     this.soundPress = this.soundPress.bind(this);
-    // this.soundClick = this.soundClick.bind(this);
+    this.processEvent = this.processEvent.bind(this);
     this.handleClick = this.handleClick.bind(this);
   }
 
   handleClick(event) {
     if(event.target.className === "drum-pad"){
       const soundEntry = sounds.filter((sound) => sound.id === event.target.id)[0];
-      this.setState({
-        sound_requested: soundEntry
-      })
-      const audioElement = document.getElementById(soundEntry.trigger);
-      audioElement.play();
+      this.processEvent(soundEntry);
     }
-  }
-
-  playSound(file) {
-   // let soundEntry = sounds.filter(sound => sound.id === this.state.sound_requested)
-    //let sound = new Audio(soundEntry[0]["file"])
-    // let sound = new Audio(file)
-    let sound = "";
-    sound.play();
   }
 
   soundPress(event){
     if(event.target.className === "drum-pad"){
       let soundEntry = sounds.filter(sound => sound.trigger === event.key.toUpperCase())
       if(soundEntry.length){ 
-        this.setState({
-          sound_requested: soundEntry[0]
-        });
-        const audioElement = document.getElementById(soundEntry[0].trigger)    
-        audioElement.play();
+        this.processEvent(soundEntry[0])
       }
     }  
   }
 
+  processEvent(entry) {
+    this.setState({
+      sound_requested: entry,
+      sound_text: entry.id.toUpperCase()
+    });
 
-  /*
-  soundClick(event){
-    if(event.target.className === "drum-pad"){
-      this.setState({
-        sound_requested: event.target.id
-      });
-
-     const soundEntry = sounds.filter((sound) => sound.id === this.state.sound_requested);
-     const audioElement = document.getElementById(soundEntry.trigger);
-     audioElement.play();
-    }
+    const audioElement = document.getElementById(entry.trigger)    
+    audioElement.play();
   }
-
-*/
 
   componentDidMount() {
     document.getElementById('display').addEventListener('keydown', this.soundPress);
   }
 
-  
   componentWillUnMmount() {
     document.getElementById('display').removeEventListener('keydown', this.soundPress);
   }
 
-
   render() {
     return (
-      <div id="drum-machine">     
-        <SoundButtons onClick={this.handleClick}/>
+      <div id="drum-machine">
+        <div id="logo-container">
+          <img src={aolpic} alt="AOL-logo" />
+        </div>
+
+        <SoundButtons onClick={this.handleClick} soundText={this.state.sound_text}/>
       </div>
     );
   }
